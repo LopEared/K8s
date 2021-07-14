@@ -18,7 +18,7 @@ spec:
   #replicas: 3
   selector:
     matchLabels:
-      project: studyproj          # Service will look for those PODS Labels!!!
+      project: studyproj          
   template:
     metadata:
       labels:
@@ -61,10 +61,9 @@ metadata:
     env   : prod
     owner : mikhail
 spec:
-  #type:  NodePort #LoadBalancer #ClusterIP
+  #type:  LoadBalancer #ClusterIP
   selector:
     project: studyproj
-    app    : web-crccheck-app
   ports:
     - name      : studyproj-crccheck-app-listener
       protocol  : TCP
@@ -79,17 +78,28 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: web-crccheck-ingress
+  name: ingress-service-crccheck
   namespace: mike-space
+  labels:
+    typeserv : mytype 
 spec:
   rules:
-    - host: hello-world.info
+    - host: www.myingress.com
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: web-crccheck
+                name: service-crccheck
                 port:
                   number: 80
+# Redirection to another servic in Deployments 
+          - path: /cat
+            pathType: Prefix
+            backend:
+              service:
+                name: service-crccheck
+                port:
+                  number: 1236
+

@@ -1,0 +1,95 @@
+# !!! Create NameSpaces !!!
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mike-space
+---
+# !!! Create Deployments !!!
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: web-crccheck
+  namespace: mike-space
+  labels:
+    app   : web-crccheck-app
+    env   : prod
+    owner : mikhail
+spec:
+  #replicas: 3
+  selector:
+    matchLabels:
+      project: studyproj          # Service will look for those PODS Labels!!!
+  template:
+    metadata:
+      labels:
+        project: studyproj        # Service will look for those PODS Labels!!!
+    spec:
+      containers:
+        - name : studyproj-crccheck
+          #imagePullPolicy: Never
+          image: crccheck/hello-world:latest
+          ports:
+            - containerPort: 8000
+        - name: container-justfun
+          image: tomcat:8.5.38
+          ports: 
+            - containerPort: 8080
+---
+# !!! Create Autoscaler !!!
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: scaler-crccheck
+  namespace: mike-space
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: web-crccheck
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 50
+---
+# !!! Create Services !!!
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-crccheck
+  namespace: mike-space
+  labels:
+    app   : web-crccheck-app
+    env   : prod
+    owner : mikhail
+spec:
+  #type:  NodePort #LoadBalancer #ClusterIP
+  selector:
+    project: studyproj
+    app    : web-crccheck-app
+  ports:
+    - name      : studyproj-crccheck-app-listener
+      protocol  : TCP
+      port      : 80      # Port on Load Balancer
+      targetPort: 8000    # Port on POD
+    - name      : container-justfun-app-listener
+      protocol  : TCP
+      port      : 1236    # Port on Load Balancer
+      targetPort: 8080    # Port on POD
+---
+# !!! Create Ingress-Controller !!!
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-crccheck-ingress
+  namespace: mike-space
+spec:
+  rules:
+    - host: hello-world.info
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-crccheck
+                port:
+                  number: 80

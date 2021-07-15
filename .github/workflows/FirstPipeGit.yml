@@ -1,15 +1,16 @@
 # This is a basic workflow to help you get started with Actions
 
 name: my-CI
+env:
+  APPLICATION_NAME: "MY FALSK"
+  PACKAGE_NAME    : "Falsk-deploy-name-${{ github.sha }}"
+
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [ main ]
-  #pull_request:
-    #branches: [ main ]
-
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -23,7 +24,14 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Print me Hello-World
         run: echo "Hello world Mikhail from your first JOB  GitHubActions"
-  
+      - name: Print Global Enviroment
+        run: |
+          echo Hello - Mesage 1
+          echo Hello - Mesage 2
+          echo Global variable number one: APPLICATION_NAME - ${{ env.APPLICATION_NAME }}
+          
+
+
   MySecondJob:
   # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -38,3 +46,7 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
+      - name: Step for printing second global Variable
+        run: |
+          echo Are you ready? =))
+          echo This is  second global variable: PACKAGE_NAME and her value - ${{PACKAGE_NAME}}

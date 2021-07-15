@@ -47,4 +47,4 @@ jobs:
       - name: Step for printing second global Variable
         run: |
           echo "Are you ready? =)"
-          echo "This is  second global variable: PACKAGE_NAME and her value - ${{PACKAGE_NAME}}"
+          echo "This is  second global variable: PACKAGE_NAME and her value - ${{ env.PACKAGE_NAME }}"
